@@ -6,8 +6,6 @@ import com.repository.GroupsRepository;
 import com.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.entity.CreateShareFolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -15,103 +13,100 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.Set;
 
 @Service
 public class GroupShareService {
+
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
-    private GroupsRepository groupTRepository;
+    private GroupsRepository groupRepository;
 
-    public boolean createShareFolder(CreateShareFolder createsharefolder) {
-
-
-        return false;
-
-    }
-
+    // Create a new group
     public boolean createGroup(String groupName, String memberEmail) {
+        User user = userRepository.findByEmail(memberEmail);
+        if (user == null) return false;
 
-        if (groupName.equals("") && memberEmail.equals("")) {
-            return false;
-        } else {
-            Groups groups = new Groups();
-            groups.setGroup_name(groupName);
-            User user = userRepository.findByEmail(memberEmail);
-            groups.setOwner_id(user.getId());
-            groupTRepository.save(groups);
-            boolean x = new File("./" + groups.getGroupId()).mkdir();
-            if (x) return true;
-            else return false;
-        }
+        Groups group = new Groups();
+        group.setGroupName(groupName);
+        group.setOwnerId(user.getId());
+
+        groupRepository.save(group);
+
+        File folder = new File("./" + group.getGroupId());
+        folder.mkdir();
+        return true;
     }
 
-    public boolean addMembersToGroup(Integer group_id, String memberEmail) {
+    // Add members to a group
+    public boolean addMembersToGroup(Integer groupId, String memberEmail) {
+        Groups group = groupRepository.findByGroupId(groupId);
+        User groupMemberUser = userRepository.findByEmail(memberEmail);
 
-        if (memberEmail.equals("") && group_id == null) {
-            return false;
-        } else {
-            Groups group = groupTRepository.findByGroupId(group_id);
-            User groupMemberUser = userRepository.findByEmail(memberEmail);
+        if (group == null || groupMemberUser == null) return false;
 
-//
-            Set<User> memberSet = group.getUser();
-            memberSet.add(groupMemberUser);
-            group.setUser(memberSet);
-//
+        // Add user to group
+        Set<User> memberSet = group.getUsers();
+        if (memberSet == null) memberSet = new HashSet<>();
+        memberSet.add(groupMemberUser);
+        group.setUsers(memberSet);
 
-            Set<Groups> groupSet = groupMemberUser.getGroupt();
-            groupSet.add(group);
-            groupMemberUser.setGroupt(groupSet);
+        // Add group to user
+        Set<Groups> groupSet = groupMemberUser.getGroups();
+        if (groupSet == null) groupSet = new HashSet<>();
+        groupSet.add(group);
+        groupMemberUser.setGroups(groupSet);
 
-            userRepository.save(groupMemberUser);
-            groupTRepository.save(group);
-//            groupTRepository.save(group);
-
-
-        }
+        userRepository.save(groupMemberUser);
+        groupRepository.save(group);
 
         return true;
-
     }
 
+    // Get all groups of a user by userId
+    public Set<Groups> getUserGroups(Integer userId) {
+        return userRepository.findById(userId)
+                .map(User::getGroups)
+                .orElse(new HashSet<>());
+    }
+
+    // Get all groups of a user by email (needed for controller)
     public Groups[] listUserGroups(String userEmail) {
+        if (userEmail == null || userEmail.isEmpty()) return new Groups[]{};
 
-        if (userEmail.equals("")) {
-            return new Groups[]{};
-        } else {
-//            Groups group = groupTRepository.findByGroup_id(group_id).get(0);
-            User user = userRepository.findByEmail(userEmail);
-            Set<Groups> groupSet = user.getGroupt();
-            return groupSet.toArray(new Groups[groupSet.size()]);
-        }
+        User user = userRepository.findByEmail(userEmail);
+        if (user == null) return new Groups[]{};
+
+        Set<Groups> groupSet = user.getGroups();
+        if (groupSet == null) return new Groups[]{};
+
+        return groupSet.toArray(new Groups[groupSet.size()]);
     }
 
-    public User[] listGroupMembers(Integer group_id) {
+    // Get all users in a group by groupId (needed for controller)
+    public User[] listGroupMembers(int groupId) {
+        Groups group = groupRepository.findByGroupId(groupId);
+        if (group == null) return new User[]{};
 
-        if (group_id == null) {
-            return new User[]{};
-        } else {
-//            Groups group = groupTRepository.findByGroup_id(group_id).get(0);
-            Groups groups = groupTRepository.findByGroupId(group_id);
-            Set<User> memberSet = groups.getUser();
-            return memberSet.toArray(new User[memberSet.size()]);
-        }
+        Set<User> memberSet = group.getUsers();
+        if (memberSet == null) return new User[]{};
+
+        return memberSet.toArray(new User[memberSet.size()]);
     }
 
-    public void uploader(MultipartFile file, Integer group_id) {
-
+    // Upload a file to a group folder
+    public void uploader(MultipartFile file, Integer groupId) {
         try {
             byte[] bytes = file.getBytes();
-
-            Path path = Paths.get("./" + group_id);
+            File dir = new File("./" + groupId);
+            if (!dir.exists()) dir.mkdir();
+            Path path = Paths.get("./" + groupId + "/" + file.getOriginalFilename());
             Files.write(path, bytes);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
 }

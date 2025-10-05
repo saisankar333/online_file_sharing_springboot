@@ -1,58 +1,37 @@
 package com.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import jakarta.persistence.*;
 import java.util.Set;
 
-import javax.persistence.*;
-
-
-@Entity // This tells Hibernate to make a table out of this class
+@Entity
+@Table(name = "user_groups") // avoid reserved word
 public class Groups {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer groupId;
 
-    private String group_name; //folder name
+    @Column(name = "group_name")
+    private String groupName;
 
-    private Integer owner_id;
+    @Column(name = "owner_id")
+    private Integer ownerId;
 
     @JsonIgnore
-    @ManyToMany(cascade = {CascadeType.ALL}, mappedBy = "groupt",fetch = FetchType.LAZY)
-    private Set<User> user;
+    @ManyToMany(cascade = {CascadeType.ALL}, mappedBy = "groups", fetch = FetchType.LAZY)
+    private Set<User> users;
 
-    public String getGroup_name() {
-        return group_name;
-    }
+    // Getters and Setters
+    public Integer getGroupId() { return groupId; }
+    public void setGroupId(Integer groupId) { this.groupId = groupId; }
 
-    public void setGroup_name(String group_name) {
-        this.group_name = group_name;
-    }
+    public String getGroupName() { return groupName; }
+    public void setGroupName(String groupName) { this.groupName = groupName; }
 
-    public Integer getOwner_id() {
-        return owner_id;
-    }
+    public Integer getOwnerId() { return ownerId; }
+    public void setOwnerId(Integer ownerId) { this.ownerId = ownerId; }
 
-    public void setOwner_id(Integer owner_id) {
-        this.owner_id = owner_id;
-    }
-
-    public Set<User> getUser() {
-        return user;
-    }
-
-    public void setUser(Set<User> user) {
-        this.user = user;
-    }
-
-    public Integer getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(Integer groupId) {
-        this.groupId = groupId;
-    }
-
-
+    public Set<User> getUsers() { return users; }
+    public void setUsers(Set<User> users) { this.users = users; }
 }

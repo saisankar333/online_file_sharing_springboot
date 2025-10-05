@@ -1,6 +1,6 @@
 package com.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity(name = "filedetails")
@@ -10,7 +10,7 @@ public class FileDetails {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private int id;
 
-    @Column(name = "fileName",unique = true, nullable = false)
+    @Column(name = "fileName", unique = true, nullable = false)
     private String fileName;
 
     @Column(name = "filePath")
@@ -31,67 +31,28 @@ public class FileDetails {
     @Column(name = "fileSharedDt")
     private Date fileSharedDt;
 
-    public int getId() {
-        return id;
-    }
+    // Getters and Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getFileName() { return fileName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
 
-    public String getFileName() {
-        return fileName;
-    }
+    public String getFilePath() { return filePath; }
+    public void setFilePath(String filePath) { this.filePath = filePath; }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
+    public Boolean getFileType() { return fileType; }
+    public void setFileType(Boolean fileType) { this.fileType = fileType; }
 
-    public String getFilePath() {
-        return filePath;
-    }
+    public Boolean getFileStarInd() { return fileStarInd; }
+    public void setFileStarInd(Boolean fileStarInd) { this.fileStarInd = fileStarInd; }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
+    public Date getFileCreatedDt() { return fileCreatedDt; }
+    public void setFileCreatedDt(Date fileCreatedDt) { this.fileCreatedDt = fileCreatedDt; }
 
-    public Boolean getFileType() {
-        return fileType;
-    }
+    public Date getFileDeletedDt() { return fileDeletedDt; }
+    public void setFileDeletedDt(Date fileDeletedDt) { this.fileDeletedDt = fileDeletedDt; }
 
-    public void setFileType(Boolean fileType) {
-        this.fileType = fileType;
-    }
-
-    public Boolean getFileStarInd() {
-        return fileStarInd;
-    }
-
-    public void setFileStarInd(Boolean fileStarInd) {
-        this.fileStarInd = fileStarInd;
-    }
-
-    public Date getFileCreatedDt() {
-        return fileCreatedDt;
-    }
-
-    public void setFileCreatedDt(Date fileCreatedDt) {
-        this.fileCreatedDt = fileCreatedDt;
-    }
-
-    public Date getFileDeletedDt() {
-        return fileDeletedDt;
-    }
-
-    public void setFileDeletedDt(Date fileDeletedDt) {
-        this.fileDeletedDt = fileDeletedDt;
-    }
-
-    public Date getFileSharedDt() {
-        return fileSharedDt;
-    }
-
-    public void setFileSharedDt(Date fileSharedDt) {
-        this.fileSharedDt = fileSharedDt;
-    }
+    public Date getFileSharedDt() { return fileSharedDt; }
+    public void setFileSharedDt(Date fileSharedDt) { this.fileSharedDt = fileSharedDt; }
 }
